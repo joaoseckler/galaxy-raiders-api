@@ -154,6 +154,7 @@ class GameEngineTest {
   fun `it can trim its space objects`() {
     hardGame.field.generateAsteroid()
     hardGame.field.generateMissile()
+    hardGame.field.generateExplosion(hardGame.field.missiles.last())
 
     val missile = hardGame.field.missiles.last()
     val missileDistanceToTopBorder =
@@ -174,8 +175,14 @@ class GameEngineTest {
       repetitionsToGetAsteroidOutsideOfSpaceField,
     )
 
+    val explosion = hardGame.field.explosions.last()
+
     repeat(repetitionsToGetSpaceObjectsOutOfSpaceField) {
       hardGame.moveSpaceObjects()
+    }
+
+    hardGame.field.explosions.forEach {
+      it.ticks = 0
     }
 
     hardGame.trimSpaceObjects()
@@ -184,7 +191,22 @@ class GameEngineTest {
       "GameEngine should trim all space objects",
       { assertEquals(-1, hardGame.field.missiles.indexOf(missile)) },
       { assertEquals(-1, hardGame.field.asteroids.indexOf(asteroid)) },
+      { assertEquals(-1, hardGame.field.explosions.indexOf(explosion)) },
     )
+  }
+
+  @Test
+  fun `it decreases the ticks of an explosion every tick`() {
+    hardGame.field.generateMissile()
+    hardGame.field.generateExplosion(hardGame.field.missiles.last())
+
+    hardGame.tick()
+    hardGame.tick()
+    hardGame.tick()
+    hardGame.tick()
+    hardGame.tick()
+
+    assertEquals(0, hardGame.field.explosions.size)
   }
 
   @Test
